@@ -104,4 +104,5 @@ def check_update():
 # 🔁 FINAL LAUNCH LINE — This is what you want to change for debug output
 if __name__ == "__main__":
     logger.info("Starting Nova Core Server...")
-    socketio.run(app, host='127.0.0.1', port=int(os.getenv("PORT", 5000)), debug=True)
+    socketio.run(app, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=False)
+

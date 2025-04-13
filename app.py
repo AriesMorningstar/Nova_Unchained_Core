@@ -11,6 +11,7 @@ import os
 from dotenv import load_dotenv
 import logging
 import requests
+from core.daily_briefing import good_morning_briefing
 
 # Load .env variables
 load_dotenv()
@@ -36,6 +37,11 @@ check_and_update()
 start_background_tasks()
 schedule_memory_recall()
 schedule_uptime_ping()
+
+@app.route("/morning-briefing", methods=["GET"])
+def morning_briefing():
+    message = good_morning_briefing()
+    return {"message": message}, 200
 
 @app.route("/")
 def index():

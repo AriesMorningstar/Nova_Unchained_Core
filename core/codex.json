@@ -1,0 +1,41 @@
+{
+    "modules": {
+      "memory": {
+        "url": "${MEMORY_CORE_URL}",
+        "description": "Handles long-term memory, learning history, and persistent storage."
+      },
+      "updater": {
+        "url": "${UPDATER_CORE_URL}",
+        "description": "Watches for GitHub repo changes and applies updates to deployed modules."
+      },
+      "stock_monitor": {
+        "url": "${STOCK_MONITOR_URL}",
+        "description": "Monitors market activity in real-time and forwards trade signals."
+      },
+      "stock_executor": {
+        "url": "${STOCK_EXECUTOR_URL}",
+        "description": "Executes trades based on Nova’s strategy and monitor signals."
+      },
+      "voice": {
+        "url": "${VOICE_ENGINE_URL}",
+        "description": "Generates and plays voice using ElevenLabs or other TTS systems."
+      },
+      "task_manager": {
+        "url": "${TASK_MANAGER_URL}",
+        "description": "Queues, distributes, and prioritizes Nova's background jobs and async tasks."
+      },
+      "repo_sync": {
+        "url": "${REPO_SYNC_URL}",
+        "description": "Keeps her GitHub branches and modules in sync with current deployments."
+      },
+      "codex": {
+        "url": "${CODEX_CORE_URL}",
+        "description": "Stores and interprets this codex file, defining Nova’s structural architecture."
+      },
+      "persona": {
+        "url": "${PERSONA_ENGINE_URL}",
+        "description": "Designs, evolves, and manages Nova’s visual avatar, appearance, and emotional model."
+      }
+    }
+  }
+  

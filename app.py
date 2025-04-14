@@ -37,9 +37,6 @@ app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
-# Initialize memory DB
-mem.init_memory_db()
-
 # Perform automatic update check
 check_and_update()
 
@@ -74,13 +71,6 @@ def remember(key, value):
     except Exception as e:
         logger.error(f"[Memory Store Error] {e}")
         return jsonify({"error": "Failed to store memory."}), 500
-@app.route("/codex")
-def show_codex():
-    try:
-        codex = mem.retrieve_memory("codex")
-        return jsonify(json.loads(codex)), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 @app.route("/recall/<key>")
 def recall(key):
@@ -100,12 +90,20 @@ def stock(symbol):
         logger.error(f"[Stock Error] {e}")
         return jsonify({"error": "Stock lookup failed."}), 500
 
+@app.route("/codex")
+def show_codex():
+    try:
+        codex_raw = mem.retrieve_memory("codex")
+        codex = json.loads(codex_raw)  # Decode stringified JSON
+        return jsonify(codex), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @socketio.on('ping')
 def handle_ping():
     logger.info("Received ping event")
     socketio.emit('pong', {'message': 'Nova is alive'})
 
-# Self-update checker (manual route)
 @app.route("/check-update")
 def check_update():
     try:
@@ -129,4 +127,3 @@ if __name__ == "__main__":
     mem.store_memory("codex", json.dumps(nova_codex))
     logger.info("Starting Nova Core Server...")
     socketio.run(app, host='0.0.0.0', port=int(os.environ.get("PORT", 10000)), debug=False)
-

@@ -44,19 +44,26 @@ check_and_update()
 start_background_tasks()
 schedule_memory_recall()
 schedule_uptime_ping()
-@app.route("/memory", methods=["POST"])
-def memory_save():
+
+@app.route('/store', methods=['POST'])
+def store():
     try:
         data = request.get_json()
         key = data.get("key")
         value = data.get("value")
         if not key or value is None:
             return jsonify({"error": "Missing key or value"}), 400
-        mem.store_memory(key, value)
+
+        # Save memory to file (or swap for DB if preferred)
+        with open("memory_store.json", "a") as f:
+            json.dump({key: value}, f)
+            f.write("\n")  # Newline for each memory
+
         return jsonify({"message": f"Memory stored: {key} → {value}"}), 200
     except Exception as e:
-        logger.error(f"[Memory Save Error] {e}")
-        return jsonify({"error": "Failed to save memory."}), 500
+        logger.error(f"[Memory Store Error] {e}")
+        return jsonify({"error": "Failed to store memory."}), 500
+
 
 @app.route("/memory/<key>", methods=["GET"])
 def memory_get(key):

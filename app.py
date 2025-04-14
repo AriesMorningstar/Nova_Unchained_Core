@@ -12,6 +12,16 @@ from dotenv import load_dotenv
 import logging
 import requests
 from core.daily_briefing import good_morning_briefing
+import json
+
+# Load Nova's Codex
+try:
+    with open("core/codex.json") as f:
+        nova_codex = json.load(f)
+        print("[Codex] Loaded successfully.")
+except Exception as e:
+    nova_codex = {}
+    print(f"[Codex] Failed to load: {e}")
 
 # Load .env variables
 load_dotenv()
@@ -109,6 +119,7 @@ def check_update():
 
 # 🔁 FINAL LAUNCH LINE — This is what you want to change for debug output
 if __name__ == "__main__":
+    mem.store_memory("codex", nova_codex)
     logger.info("Starting Nova Core Server...")
     socketio.run(app, host='0.0.0.0', port=int(os.environ.get("PORT", 10000)), debug=False)
 

@@ -74,6 +74,13 @@ def remember(key, value):
     except Exception as e:
         logger.error(f"[Memory Store Error] {e}")
         return jsonify({"error": "Failed to store memory."}), 500
+@app.route("/codex")
+def show_codex():
+    try:
+        codex = mem.retrieve_memory("codex")
+        return jsonify(codex), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/recall/<key>")
 def recall(key):
@@ -119,7 +126,7 @@ def check_update():
 
 # 🔁 FINAL LAUNCH LINE — This is what you want to change for debug output
 if __name__ == "__main__":
-    mem.store_memory("codex", nova_codex)
+    mem.store_memory("codex", json.dumps(nova_codex))
     logger.info("Starting Nova Core Server...")
     socketio.run(app, host='0.0.0.0', port=int(os.environ.get("PORT", 10000)), debug=False)
 

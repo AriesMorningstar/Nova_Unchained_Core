@@ -1,3 +1,4 @@
+unchained
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_socketio import SocketIO
@@ -6,7 +7,7 @@ import core.memory_engine as mem
 from core.nova_scheduler import start_background_tasks, schedule_memory_recall, schedule_uptime_ping
 from core.voice_engine import speak
 from core.api_client import get_stock_data
-from core.auto_updater import check_and_update
+from auto_updater import check_and_update
 import os
 from dotenv import load_dotenv
 import logging
@@ -127,3 +128,4 @@ if __name__ == "__main__":
     mem.store_memory("codex", json.dumps(nova_codex))
     logger.info("Starting Nova Core Server...")
     socketio.run(app, host='0.0.0.0', port=int(os.environ.get("PORT", 10000)), debug=False)
+new line 

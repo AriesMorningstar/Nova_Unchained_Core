@@ -23,7 +23,7 @@ class memory:
 
 # --- Logging Helper ---
 def log(msg):
-    print(f"[Nova] {msg}")
+    speak(f"[Nova] {msg}")
 
 # --- Nova Voice Discovery Protocol ---
 def select_voice_autonomously():

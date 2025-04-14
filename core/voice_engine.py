@@ -1,8 +1,11 @@
-import os
 import requests
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
+# ❌ FIX: Don't put the actual API key in `os.getenv()`, use the variable name
 ELEVENLABS_API_KEY = os.getenv("sk_83af699f165df2434511820c206be35323ab145349464c6f")
-VOICE_ID = os.getenv("ELEVENLABS_VOICE_ID", "EXAVITQu4vr4xnSDxMaL")  # Replace if using custom voice
+VOICE_ID = os.getenv("ELEVENLABS_VOICE_ID", "EXAVITQu4vr4xnSDxMaL")  # Fallback to default if not set
 
 def speak(text):
     if not ELEVENLABS_API_KEY:
@@ -34,7 +37,7 @@ def speak(text):
             with open("temp_audio.mp3", "wb") as f:
                 f.write(response.content)
 
-            # Check if audio tools are available before trying to play audio
+            # ✅ Optional: only runs if mpg123 is available
             if os.system("which mpg123 > /dev/null") == 0:
                 os.system("mpg123 temp_audio.mp3")
             else:
@@ -46,3 +49,26 @@ def speak(text):
     except Exception as e:
         print(f"[TTS ERROR] {e}")
 
+def generate_speech(text):
+    """Returns raw MP3 audio bytes for Flask streaming."""
+    if not ELEVENLABS_API_KEY or not VOICE_ID:
+        raise Exception("Missing ElevenLabs API key or Voice ID")
+
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}"
+    headers = {
+        "xi-api-key": ELEVENLABS_API_KEY,
+        "Content-Type": "application/json"
+    }
+    data = {
+        "text": text,
+        "voice_settings": {
+            "stability": 0.5,
+            "similarity_boost": 0.75
+        }
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+    if response.status_code == 200:
+        return response.content
+    else:
+        raise Exception(f"Speech generation failed: {response.text}")

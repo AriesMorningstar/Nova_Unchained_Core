@@ -13,7 +13,7 @@ import logging
 import requests
 from core.daily_briefing import good_morning_briefing
 import json
-
+import requests
 # Load Nova's Codex
 try:
     with open("core/codex.json") as f:
@@ -44,6 +44,30 @@ check_and_update()
 start_background_tasks()
 schedule_memory_recall()
 schedule_uptime_ping()
+@app.route("/memory", methods=["POST"])
+def memory_save():
+    try:
+        data = request.get_json()
+        key = data.get("key")
+        value = data.get("value")
+        if not key or value is None:
+            return jsonify({"error": "Missing key or value"}), 400
+        mem.store_memory(key, value)
+        return jsonify({"message": f"Memory stored: {key} → {value}"}), 200
+    except Exception as e:
+        logger.error(f"[Memory Save Error] {e}")
+        return jsonify({"error": "Failed to save memory."}), 500
+
+@app.route("/memory/<key>", methods=["GET"])
+def memory_get(key):
+    try:
+        value = mem.retrieve_memory(key)
+        if value is None:
+            return jsonify({"error": "Memory not found"}), 404
+        return jsonify({"value": value}), 200
+    except Exception as e:
+        logger.error(f"[Memory Get Error] {e}")
+        return jsonify({"error": "Failed to retrieve memory."}), 500
 
 @app.route("/morning-briefing", methods=["GET"])
 def morning_briefing():
@@ -94,10 +118,21 @@ def stock(symbol):
 def show_codex():
     try:
         codex_raw = mem.retrieve_memory("codex")
+        if not codex_raw:
+            return jsonify({"error": "Codex memory is empty"}), 404
         codex = json.loads(codex_raw)  # Decode stringified JSON
         return jsonify(codex), 200
+    except json.JSONDecodeError as e:
+        logger.error(f"[Codex Decode Error] {e}")
+        return jsonify({"error": "Codex memory is corrupted or not valid JSON."}), 500
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        logger.error(f"[Codex Retrieval Error] {e}")
+        return jsonify({"error": "Failed to retrieve codex."}), 500
+
+@app.route("/debug/codex-raw")
+def debug_codex_raw():
+    value = mem.retrieve_memory("codex")
+    return f"Raw Codex: {value or '[empty]'}"
 
 @socketio.on('ping')
 def handle_ping():
@@ -127,4 +162,3 @@ if __name__ == "__main__":
     mem.store_memory("codex", json.dumps(nova_codex))
     logger.info("Starting Nova Core Server...")
     socketio.run(app, host='0.0.0.0', port=int(os.environ.get("PORT", 10000)), debug=False)
-

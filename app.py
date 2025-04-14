@@ -1,4 +1,3 @@
-unchained
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_socketio import SocketIO
@@ -128,4 +127,4 @@ if __name__ == "__main__":
     mem.store_memory("codex", json.dumps(nova_codex))
     logger.info("Starting Nova Core Server...")
     socketio.run(app, host='0.0.0.0', port=int(os.environ.get("PORT", 10000)), debug=False)
-new 
+

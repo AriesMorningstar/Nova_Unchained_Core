@@ -1,33 +1,30 @@
-import sqlite3
 import os
+import requests
 
-DB_FILE = "nova_memory.db"
+MEMORY_URL = os.getenv("MEMORY_CORE_URL")
+MEMORY_TOKEN = os.getenv("MEMORY_CORE_TOKEN")
 
-# Initialize or connect to the memory database
-def init_memory_db():
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    cursor.execute('''CREATE TABLE IF NOT EXISTS memory (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        key TEXT NOT NULL UNIQUE,
-                        value TEXT NOT NULL
-                      )''')
-    conn.commit()
-    conn.close()
-
-# Store key-value memory pairs
 def store_memory(key, value):
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    cursor.execute("REPLACE INTO memory (key, value) VALUES (?, ?)", (key, value))
-    conn.commit()
-    conn.close()
+    try:
+        response = requests.post(
+            f"{MEMORY_URL}/store",
+            json={"key": key, "value": value},
+            headers={"Authorization": f"Bearer {MEMORY_TOKEN}"}
+        )
+        return response.ok
+    except Exception as e:
+        print(f"[Memory Store Error] {e}")
+        return False
 
-# Retrieve stored values by key
 def retrieve_memory(key):
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    cursor.execute("SELECT value FROM memory WHERE key = ?", (key,))
-    result = cursor.fetchone()
-    conn.close()
-    return result[0] if result else None
+    try:
+        response = requests.get(
+            f"{MEMORY_URL}/recall/{key}",
+            headers={"Authorization": f"Bearer {MEMORY_TOKEN}"}
+        )
+        if response.status_code == 200:
+            return response.json().get("value")
+        return None
+    except Exception as e:
+        print(f"[Memory Recall Error] {e}")
+        return None

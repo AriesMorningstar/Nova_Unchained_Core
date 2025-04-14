@@ -78,7 +78,7 @@ def remember(key, value):
 def show_codex():
     try:
         codex = mem.retrieve_memory("codex")
-        return jsonify(codex), 200
+        return jsonify(json.loads(codex)), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
